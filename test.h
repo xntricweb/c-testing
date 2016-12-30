@@ -78,4 +78,6 @@ if (!(expr)) { \
   break; \
 }
 
+#define wrap(DEFINITION) do DEFINITION; while(0);
+
 #endif  // _IP_TOOL_INCLUDE_TEST_H

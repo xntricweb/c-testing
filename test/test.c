@@ -46,8 +46,17 @@ test(TESTING, {
   expectResults(FAILED);
 
   recover("should have to recover from failed test", { pass(); });
+
+  it("should allow cleanup tasks if an assertion fails", {
+    int x = 1;
+    wrap({
+      assert(x > 2, "this should fail.");
+    });
+    x = 0;
+  })
 });
 
 int main() {
+
   return run(TESTING);
 }
