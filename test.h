@@ -7,16 +7,15 @@
 #define FAILED 0
 
 #define START_SUB_TEST(DESCRIPTION)   \
-notify("\tit %s...\n", DESCRIPTION)
+char *subTestDescription = DESCRIPTION
 
 #define STOP_SUB_TEST() \
-if (results) notify("\tTEST PASSED\n");  \
-else notify("\tTEST FAILED\n")
+log("      %s... %s\n\n", subTestDescription, results?"success": "fail")
 
 #define is(EXPRESSION, DESCRIPTION, DEFINITION) do {  \
   if (EXPRESSION) {                                     \
     START_SUB_TEST(DESCRIPTION);                        \
-    DEFINITION                                    \
+    do { DEFINITION; } while(0);                                    \
     STOP_SUB_TEST();                              \
   }                                               \
 } while(0)
@@ -27,7 +26,7 @@ is(results==PASSED, DESCRIPTION, DEFINITION)
 #define recover(DESCRIPTION, DEFINITION) \
 is(results!=PASSED, DESCRIPTION, DEFINITION)
 
-#define notify(FORMAT, ...) printf(FORMAT, __VA_ARGS__)
+#define log(FORMAT, ...) printf(FORMAT, __VA_ARGS__)
 
 #define DEFINE_TESTS(DESCRIPTION, DEF)        \
 void LoadTestDefinitions() {                  \
@@ -39,45 +38,38 @@ void LoadTestDefinitions() {                  \
 int results = 1;                              \
 int sub_test_count = 0;                       \
 int sub_tests_complete = 0;                   \
-notify("Starting test %s\n", #NAME)
+log("  Starting test %s\n", #NAME)
 
 #define TEST_COMPLETE(NAME)                             \
 if (results) {                                          \
-  notify("Test " #NAME " completed successfully\n\n");  \
+  log("Test " #NAME " completed successfully\n\n");  \
 } else {                                                \
-  notify("TEST FAILED!!!");                             \
+  log("TEST FAILED!!!");                             \
 }                                                       \
 return results;
 
-#define TEST_DECL(NAME, ...) int NAME(__VA_ARGS__)
+#define TEST(NAME, ...) int NAME(__VA_ARGS__)
 
 #define test(NAME, DEFINITION, ...) \
-TEST_DECL(NAME, __VA_ARGS__) {      \
+TEST(NAME, __VA_ARGS__) {      \
   TEST_START(NAME);                 \
   if(1) DEFINITION                  \
   TEST_COMPLETE(NAME);              \
 }                                   \
-TEST_DECL(NAME, __VA_ARGS__)
+TEST(NAME, __VA_ARGS__)
 
 #define run(NAME, ...) NAME(__VA_ARGS__)
 
 #define fail() results = FAILED
 #define pass() results = PASSED
 
-// #define assertEquals(v1, v2, msg)   \
-// if (v1 != v2) {                     \
-//   notify("\t\t" msg ". (expected %i, found %i)\n", v1, v2);  \
-//   fail();                           \
-//   break;                            \
-// }
-
 #define assert(expr, msg)  \
 if (!(expr)) { \
-  notify("\t\t" msg ". expected(" #expr ")\n"); \
+  log("        " msg ". expected(" #expr ")\n"); \
   fail(); \
   break; \
 }
 
-#define wrap(DEFINITION) do DEFINITION; while(0);
+#define wrap(DEFINITION) do DEFINITION while(0)
 
 #endif  // _IP_TOOL_INCLUDE_TEST_H
